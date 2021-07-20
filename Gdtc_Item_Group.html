@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>table</title>
+    <link href="/MIS/layui/css/layui.css" rel="stylesheet" />
+</head>
+<body>
+     <form class="layui-form" action="" id="form" style="margin: 25px 60px 0 0;display:none">
+        <div class="layui-form-item">
+            <div class="layui-inline" style="display:none">
+                <label class="layui-form-label">id</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="id" name="id" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label"><span style="color:red;">* </span>群组编号</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="groupCode" name="groupCode" lay-verify="required" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label"><span style="color:red;">* </span>群组名称</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="groupName" id="groupName" lay-verify="required" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">备注</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="remark" name="remark" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <label class="layui-form-label">品号编码样式</label>
+                <div class="layui-input-inline">
+                    <input type="text" id="itemFormat" name="itemFormat" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+
+        </div>
+    </form>
+
+
+
+    <script type="text/html" id="search">
+        <div class="layui-input-inline">
+            <input type="text" name="username" lay-verify="required" placeholder="请输入群组编号" id="input1" autocomplete="off" class="layui-input">
+        </div>
+        <div class="layui-input-inline">
+            <input type="text" name="username" lay-verify="required" placeholder="请输入群组名称" id="input2" ="off" class="layui-input">
+        </div>
+        <button type="button" class="layui-btn layui-btn-primary layui-btn-sm" id="button">搜索</button>
+    </script>
+    <table class="layui-hide" id="tableid" lay-filter="tableid"></table>
+    <script src="/MIS/layui/layui.js"></script>
+    <script>
+
+
+        layui.config({
+            base:'/MIS/tablePlug/',
+        }).extend({
+            soulTable: 'soulTable'
+            , tablePlug: 'tablePlug'
+        });
+        layui.use(['table', 'jquery', 'tablePlug', 'soulTable', 'laydate'], function () {
+            var table = layui.table
+                , laydate = layui.laydate
+                , $ = layui.jquery
+                , soulTable = layui.soulTable;
+            tablePlug = layui.tablePlug;
+            tablePlug.smartReload.enable(true);
+            tablePlug = layui.tablePlug;
+            //layui.use(['table', 'jquery', 'laydate'], function () {
+            //var table = layui.table,
+            //    laydate = layui.laydate,
+            //    $ = layui.jquery
+            table.render({
+                elem: '#tableid'
+                , id: "tableid"
+                , url: '/MIS/gdtcItemGroup/selectByPage.do' //数据源
+                , limit: 10 //每页10条
+                , title: '用户表'
+                , toolbar: '#search'
+                , smartReloadModel: true
+                , overflow: 'tips'
+                , defaultToolbar: [
+      //              {
+      //                  title: '首页'
+      //                  , layEvent: 'home'
+      //                  , icon: 'layui-icon-home'
+      //              },
+                    {
+                        title: '增加'
+                        , layEvent: 'add'
+                        , icon: 'layui-icon-addition'
+                    },
+      //              {
+      //                  title: '删除'
+       //                 , layEvent: 'del'
+        //                , icon: 'layui-icon-delete'
+      //              },
+       //             {
+       //                 title: '修改'
+       //                 , layEvent: 'change'
+       //                 , icon: 'layui-icon-edit'
+       //             },
+                    {
+                        title: '导出'
+                        , layEvent: 'export'
+                        , icon: 'layui-icon-download-circle'
+
+                    }]
+                , page: true
+                , cols: [[
+                    { type: 'checkbox', fixed: 'left' }
+                    , { field: 'groupId', title: 'ID', width: 80, hide:true }
+                    , { field: 'groupCode', title: '群组编号', width: 80 }
+                    , { field: 'groupName', title: '群组名称', width: 90 }
+                    , { field: 'itemFormat', title: '品号编码格式', width: 80 }
+                    , { field: 'remark', title: '备注', width: 80 }      
+                    , { fixed: 'right', width: 150 }
+                ]],
+                done: function () {
+                    soulTable.render(this)
+                }
+            });
+
+            table.on('toolbar(tableid)', function (obj) {
+                var checkStatus = table.checkStatus('tableid')
+                var data = checkStatus.data
+                switch (obj.event) {
+                    //case 'home':
+                    //    window.location.href = "/Warehousing/warehous";
+                    //    break;
+                    case 'add':
+                        layer.open({
+                            id: 'add',
+                            btnAlign: "c",
+                            //offset: "0px",
+                            type: 1,
+                            title: "添加",
+                            btn: ['保存', '关闭'],
+                            closeBtn: false,
+                            shift: 2,
+                            area: ['680px', '550px'],
+                            area: '380px',
+                            shadeClose: true,
+                            //content: "/Default/Index?ID=" + data.ID,
+                            content: $("#form"),
+                            //content: "/Popup/popup",
+                            success: function (layero, index) {
+                                laydate.render({
+                                    elem: '#creationtime'
+                                });
+                                laydate.render({
+                                    elem: '#outtime'
+                                });
+                                laydate.render({
+                                    elem: '#entertime'
+                                });
+
+                                //alert(JSON.stringify(data))
+                                //data.Date = layui.laytpl.toDateString(data.Date)
+                            }
+                            , yes: function (index, layero) {
+                                if (layero.find('#groupCode').val() == "") {
+    	
+                                    layer.alert('请填写完整！', { icon: 5 });
+                                } else {
+                                    $.ajax({
+                                        type: "get",
+                                        url: '/MIS/gdtcItemGroup/add.do',
+                                        data: $('#form').serialize(),
+                                        dataType: "json",
+                                        success: function (data) {
+                                            if (data.msg == '操作成功') {
+                                                //load(layero.find('#code').val());
+                                                layer.msg('添加成功!');
+                                            } else if (data == 500) {
+                                                layer.alert('添加失败！', { icon: 5 });
+                                            } else {
+                                                layer.alert('品号已存在！', { icon: 5 });
+                                            }
+                                        },
+                                        'error': function () {
+                                            layer.alert('系统错误', { icon: 5 });
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                        break;
+                    case 'export':
+                        var parameter1 = $("#input1").val();
+                        var parameter2 = $("#input2").val();
+                        window.location.href = "/MIS/gdtcItemGroup/exportExcel.do?parameter1="+parameter1+"&parameter2="+parameter2;
+
+                        break;
+                }
+            })
+            $("#button").click(function () {
+                var parameter1 = $("#input1").val();
+                var parameter2 = $("#input2").val();
+                load(parameter1, parameter2);
+            });
+
+            function load(parameter1, parameter2) {
+                table.reload('tableid', {
+                    url: '/MIS/gdtcItemGroup/selectByPage.do',
+                    where: {
+                        parameter1: parameter1,
+                        parameter2: parameter2,
+                    }
+                });
+            };
+        })
+    </script>
+</body>
+</html>
