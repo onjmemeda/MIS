@@ -4,9 +4,9 @@
     <meta name="viewport" content="width=device-width" />
     <title>table</title>
     <link href="/MIS/layui/css/layui.css" rel="stylesheet" />
-</head>                
+</head>
 <body>
-     <form class="layui-form" action="" id="form" style="margin: 25px 60px 0 0;display:none">
+    <form class="layui-form" action="" id="form" style="margin: 25px 60px 0 0;display:none">
         <div class="layui-form-item">
             <div class="layui-inline" style="display:none">
                 <label class="layui-form-label">id</label>
@@ -14,12 +14,25 @@
                     <input type="text" id="id" name="id" autocomplete="off" class="layui-input">
                 </div>
             </div>
-            <div class="layui-inline">
+
+
+            <!--<div class="layui-inline">
                 <label class="layui-form-label"><span style="color:red;">* </span>群组编号</label>
                 <div class="layui-input-inline">
                     <input type="text" id="groupCode" name="groupCode" lay-verify="required" autocomplete="off" class="layui-input">
+               </div>
+            </div>-->
+
+            <div class="layui-inline">
+                <label class="layui-form-label">群组编号</label>
+                <div class="layui-input-inline">
+                    <select name="modules" lay-verify="required" lay-search=""  lay-filter="select" id="select"> 
+
+                    </select>
                 </div>
             </div>
+
+
             <div class="layui-inline">
                 <label class="layui-form-label"><span style="color:red;">* </span>群组名称</label>
                 <div class="layui-input-inline">
@@ -33,7 +46,7 @@
                 </div>
             </div>
             <div class="layui-inline">
-                <label class="layui-form-label">品号编码样式</label>
+                <label class="layui-form-label">品号编码</label>
                 <div class="layui-input-inline">
                     <input type="text" id="itemFormat" name="itemFormat" autocomplete="off" class="layui-input">
                 </div>
@@ -59,7 +72,7 @@
 
 
         layui.config({
-            base:'/MIS/tablePlug/',
+            base: '/MIS/tablePlug/',
         }).extend({
             soulTable: 'soulTable'
             , tablePlug: 'tablePlug'
@@ -86,26 +99,26 @@
                 , smartReloadModel: true
                 , overflow: 'tips'
                 , defaultToolbar: [
-      //              {
-      //                  title: '首页'
-      //                  , layEvent: 'home'
-      //                  , icon: 'layui-icon-home'
-      //              },
+                    //              {
+                    //                  title: '首页'
+                    //                  , layEvent: 'home'
+                    //                  , icon: 'layui-icon-home'
+                    //              },
                     {
                         title: '增加'
                         , layEvent: 'add'
                         , icon: 'layui-icon-addition'
                     },
-      //              {
-      //                  title: '删除'
-       //                 , layEvent: 'del'
-        //                , icon: 'layui-icon-delete'
-      //              },
-       //             {
-       //                 title: '修改'
-       //                 , layEvent: 'change'
-       //                 , icon: 'layui-icon-edit'
-       //             },
+                    //              {
+                    //                  title: '删除'
+                    //                 , layEvent: 'del'
+                    //                , icon: 'layui-icon-delete'
+                    //              },
+                    //             {
+                    //                 title: '修改'
+                    //                 , layEvent: 'change'
+                    //                 , icon: 'layui-icon-edit'
+                    //             },
                     {
                         title: '导出'
                         , layEvent: 'export'
@@ -115,11 +128,11 @@
                 , page: true
                 , cols: [[
                     { type: 'checkbox', fixed: 'left' }
-                    , { field: 'groupId', title: 'ID', width: 80, hide:true }
+                    , { field: 'groupId', title: 'ID', width: 80, hide: true }
                     , { field: 'groupCode', title: '群组编号', width: 80 }
                     , { field: 'groupName', title: '群组名称', width: 90 }
                     , { field: 'itemFormat', title: '品号编码格式', width: 80 }
-                    , { field: 'remark', title: '备注', width: 80 }      
+                    , { field: 'remark', title: '备注', width: 80 }
                     , { fixed: 'right', width: 150 }
                 ]],
                 done: function () {
@@ -151,6 +164,45 @@
                             content: $("#form"),
                             //content: "/Popup/popup",
                             success: function (layero, index) {
+
+
+                                $.ajax({
+                                    type: "get",
+                                    url: '/MIS/gdtcItemGroup/add.do',
+                                    //data: $('#form').serialize(),
+                                    dataType: "json",
+                                    success: function (data) {
+                                        if (data.msg == '操作成功') {
+                                            //load(layero.find('#code').val());
+
+                                            if (data.length == 0) {
+                                                $("#select").html("");
+                                                $("#select").append($('<option>暂无数据！</option>'));
+                                                form.render('select');
+                                            }
+                                            else {
+                                                for (var i = 0; i < data.length; i++) {
+                                                    if (data[i] == Table[0].Version) {
+                                                        $("#select").append($('<option selected = "selected">' + (data[i]) + '</option>'));
+                                                     
+                                                    }
+                                                    else {
+                                                        $("#select").append($('<option >' + (data[i]) + '</option>'));
+                                                        form.render('select');
+                                                    }
+                                                }
+                                            }
+                                        } 
+                                    },
+                                    'error': function () {
+                                        layer.alert('系统错误', { icon: 5 });
+                                    }
+                                });
+
+
+
+
+
                                 laydate.render({
                                     elem: '#creationtime'
                                 });
@@ -166,7 +218,7 @@
                             }
                             , yes: function (index, layero) {
                                 if (layero.find('#groupCode').val() == "") {
-    	
+
                                     layer.alert('请填写完整！', { icon: 5 });
                                 } else {
                                     $.ajax({
@@ -195,7 +247,7 @@
                     case 'export':
                         var parameter1 = $("#input1").val();
                         var parameter2 = $("#input2").val();
-                        window.location.href = "/MIS/gdtcItemGroup/exportExcel.do?parameter1="+parameter1+"&parameter2="+parameter2;
+                        window.location.href = "/MIS/gdtcItemGroup/exportExcel.do?parameter1=" + parameter1 + "&parameter2=" + parameter2;
 
                         break;
                 }
@@ -212,9 +264,6 @@
                     where: {
                         parameter1: parameter1,
                         parameter2: parameter2,
-
-
-
                     }
                 });
             };
